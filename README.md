@@ -36,3 +36,25 @@ If you want to contribute patches back, please keep it under the unmodified MIT 
 
 ### Will you be taking pull requests? ###
 We'll consider all incoming pull requests that we get. It's likely we'll take bug fixes this way but anything else will be handled on a case by case basis. Changes will not be applied directly to this repository but to the mainline Unity repository and will then appear here when the code is released in a new Unity version.
+
+
+//###################2017.09.19
+
+1.在NetworkConnection类，增加groupId字段，默认值为0；
+2.在NetworkConnection类，增加SetGroupId方法，作用为给groupId字段赋值；
+3.在NetworkIdentity类，增加了groupId属性，当NetworkIdentity在生成的时候，有被赋值过groupId时，则获取该groupId,否则，当有Owner的时候，返回Owner的groupID,否则返回0；
+4.NetworkServer.SndWriterToReady方法增加groupID参数 ，默认为0；
+5.NetworkServer.SendBytesToReady方法增加groupID参数 ，默认为0；
+6.NetworkServer.SetClientReadyInternal 方法中，AddObserver时，只add groupId一致的conn
+7.NetworkServer.SpawnObject方法增加groupID参数 ，默认为0；
+8.NetworkServer.Spawn方法增加groupID参数 ，默认为0；
+9.NetworkIdentity.RebuildObservers方法增加groupID参数，默认为0;
+10.增加了SpawnExDelegate(Vector3 position, NetworkHash128 assetId, string data); 以便在Spawn的时候传送其它数据
+11.ClientScene增加了 SpawnExDelegate相关的RegisterPrefab,RegisterSpawnHandler方法。
+12.NetworkScene增加了 存储SpawnExDelegate的相关Hashtable字段：s_SpawnExHandlers，并在获取,移除,清空Spawner时针对s_SpawnExHandlers做了相应增加删除处理，。
+13.NetworkScene增加了 SpawnExDelete相关的RegisterPrefab,RegisterSpawnHandler方法。
+14.NetworkScene增加了 GetSpawnHandler(NetworkHash128 assetId, out SpawnExDelegate handler)，方法用于获取新的SpawnExDelegate
+15.NetworkServer增加Spawn方法的data参数，默认为空。
+16.NetworkServer增加SpawnObject方法的data参数，默认为空。
+
+

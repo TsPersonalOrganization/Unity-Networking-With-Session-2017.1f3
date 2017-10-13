@@ -1,0 +1,7 @@
+/Users/longtoo/Perforce/Support/Git/Unity-Networking-With-Session-2017.1f3/Weaver/bin/Debug/Unity.UNetWeaver.dll.mdb
+/Users/longtoo/Perforce/Support/Git/Unity-Networking-With-Session-2017.1f3/Weaver/bin/Debug/Unity.UNetWeaver.dll
+/Users/longtoo/Perforce/Support/Git/Unity-Networking-With-Session-2017.1f3/Weaver/obj/Debug/Unity.UNetWeaver.dll
+/Users/longtoo/Perforce/Support/Git/Unity-Networking-With-Session-2017.1f3/Weaver/obj/Debug/Unity.UNetWeaver.dll.mdb
+/Users/longtoo/Perforce/Support/Git/Unity-Networking-With-Session-2017.1f3/Weaver/bin/Debug/Mono.Cecil.dll
+/Users/longtoo/Perforce/Support/Git/Unity-Networking-With-Session-2017.1f3/Weaver/bin/Debug/Mono.Cecil.Mdb.dll
+/Users/longtoo/Perforce/Support/Git/Unity-Networking-With-Session-2017.1f3/Weaver/bin/Debug/Mono.Cecil.Pdb.dll

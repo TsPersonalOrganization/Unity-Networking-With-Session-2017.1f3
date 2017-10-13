@@ -10,6 +10,9 @@ namespace UnityEngine.Networking
     // Handles requests to spawn objects on the client
     public delegate GameObject SpawnDelegate(Vector3 position, NetworkHash128 assetId);
 
+    // Handles requests to spawn objects on the client
+    public delegate GameObject SpawnExDelegate(Vector3 position, NetworkHash128 assetId, string data);
+
     // Handles requests to unspawn objects on the client
     public delegate void UnSpawnDelegate(GameObject spawned);
 
@@ -187,6 +190,13 @@ namespace UnityEngine.Networking
         AllowFragmentation = 2,
         MaxPacketSize = 3
             // maybe add an InitialCapacity for Pending Buffers list if needed in the future
+    }
+
+
+    public class Settings
+    {
+        public const int minGroupLayer = 10;
+        public const int maxGroupLayer = 31;
     }
 }
 

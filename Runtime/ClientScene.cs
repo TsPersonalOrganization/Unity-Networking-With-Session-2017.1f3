@@ -423,6 +423,12 @@ namespace UnityEngine.Networking
                 return handler.GetMethodName();
             }
 
+            SpawnExDelegate exHandler;
+            if(NetworkScene.GetSpawnHandler(assetId, out exHandler))
+            {
+                return exHandler.GetMethodName();
+            }
+
             return "unknown";
         }
 
@@ -442,12 +448,24 @@ namespace UnityEngine.Networking
             NetworkScene.RegisterPrefab(prefab, spawnHandler, unspawnHandler);
         }
 
+        //add by linaibin
+        static public void RegisterPrefab(GameObject prefab, SpawnExDelegate spawnHandler, UnSpawnDelegate unspawnHandler)
+        {
+            NetworkScene.RegisterPrefab(prefab, spawnHandler, unspawnHandler);
+        }
+
         static public void UnregisterPrefab(GameObject prefab)
         {
             NetworkScene.UnregisterPrefab(prefab);
         }
 
         static public void RegisterSpawnHandler(NetworkHash128 assetId, SpawnDelegate spawnHandler, UnSpawnDelegate unspawnHandler)
+        {
+            NetworkScene.RegisterSpawnHandler(assetId, spawnHandler, unspawnHandler);
+        }
+
+        //add by linaibin
+        static public void RegisterSpawnHandler(NetworkHash128 assetId, SpawnExDelegate spawnHandler, UnSpawnDelegate unspawnHandler)
         {
             NetworkScene.RegisterSpawnHandler(assetId, spawnHandler, unspawnHandler);
         }
@@ -478,7 +496,7 @@ namespace UnityEngine.Networking
             return s_NetworkScene.FindLocalObject(netId);
         }
 
-        static void ApplySpawnPayload(NetworkIdentity uv, Vector3 position, byte[] payload, NetworkInstanceId netId, GameObject newGameObject)
+        static void ApplySpawnPayload(NetworkIdentity uv, Vector3 position, byte[] payload, NetworkInstanceId netId, GameObject newGameObject, string data = "")
         {
             if (!uv.gameObject.activeSelf)
             {
@@ -528,12 +546,13 @@ namespace UnityEngine.Networking
             if (s_NetworkScene.GetNetworkIdentity(s_ObjectSpawnMessage.netId, out localNetworkIdentity))
             {
                 // this object already exists (was in the scene), just apply the update to existing object
-                ApplySpawnPayload(localNetworkIdentity, s_ObjectSpawnMessage.position, s_ObjectSpawnMessage.payload, s_ObjectSpawnMessage.netId, null);
+                ApplySpawnPayload(localNetworkIdentity, s_ObjectSpawnMessage.position, s_ObjectSpawnMessage.payload, s_ObjectSpawnMessage.netId, null, s_ObjectSpawnMessage.data);
                 return;
             }
 
             GameObject prefab;
             SpawnDelegate handler;
+            SpawnExDelegate exHandler;
             if (NetworkScene.GetPrefab(s_ObjectSpawnMessage.assetId, out prefab))
             {
                 var obj = (GameObject)Object.Instantiate(prefab, s_ObjectSpawnMessage.position, s_ObjectSpawnMessage.rotation);
@@ -569,6 +588,24 @@ namespace UnityEngine.Networking
                 localNetworkIdentity.Reset();
                 localNetworkIdentity.SetDynamicAssetId(s_ObjectSpawnMessage.assetId);
                 ApplySpawnPayload(localNetworkIdentity, s_ObjectSpawnMessage.position, s_ObjectSpawnMessage.payload, s_ObjectSpawnMessage.netId, obj);
+            }
+            else if (NetworkScene.GetSpawnHandler(s_ObjectSpawnMessage.assetId, out exHandler))
+            {
+                GameObject obj = exHandler(s_ObjectSpawnMessage.position, s_ObjectSpawnMessage.assetId, s_ObjectSpawnMessage.data);
+                if (obj == null)
+                {
+                    if (LogFilter.logWarn) { Debug.LogWarning("Client spawn handler for " + s_ObjectSpawnMessage.assetId + " returned null"); }
+                    return;
+                }
+                localNetworkIdentity = obj.GetComponent<NetworkIdentity>();
+                if (localNetworkIdentity == null)
+                {
+                    if (LogFilter.logError) { Debug.LogError("Client object spawned for " + s_ObjectSpawnMessage.assetId + " does not have a network identity"); }
+                    return;
+                }
+                localNetworkIdentity.Reset();
+                localNetworkIdentity.SetDynamicAssetId(s_ObjectSpawnMessage.assetId);
+                ApplySpawnPayload(localNetworkIdentity, s_ObjectSpawnMessage.position, s_ObjectSpawnMessage.payload, s_ObjectSpawnMessage.netId, obj, s_ObjectSpawnMessage.data);
             }
             else
             {

@@ -38,6 +38,9 @@ namespace UnityEngine.Networking
         List<NetworkConnection>     m_Observers;
         NetworkConnection           m_ClientAuthorityOwner;
 
+        uint                        m_GroupId = 0;
+        string                      m_Data = string.Empty;
+
         // member used to mark a identity for future reset
         // check MarkForReset for more information.
         bool                        m_Reset = false;
@@ -64,6 +67,11 @@ namespace UnityEngine.Networking
         public bool serverOnly { get { return m_ServerOnly; } set { m_ServerOnly = value; } }
         public bool localPlayerAuthority { get { return m_LocalPlayerAuthority; } set { m_LocalPlayerAuthority = value; } }
         public NetworkConnection clientAuthorityOwner { get { return m_ClientAuthorityOwner; }}
+
+        public uint groupId { get { return m_GroupId >0?m_GroupId:(m_ClientAuthorityOwner==null?0:m_ClientAuthorityOwner.groupId);} }
+
+        public string data{get{return m_Data;} set {m_Data = value;}}
+
 
         public NetworkHash128 assetId
         {
@@ -177,6 +185,15 @@ namespace UnityEngine.Networking
             {
                 m_IsServer = false;
             }
+        }
+
+        /// <summary>
+        /// 强制更改Owner
+        /// </summary>
+        /// <param name="owner">Owner.</param>
+        public void ForceSetGroupId(uint mGroupId)
+        {
+            m_GroupId = mGroupId;
         }
 
         // only used when fixing duplicate scene IDs duing post-processing
@@ -727,7 +744,8 @@ namespace UnityEngine.Networking
                     }
 
                     s_UpdateWriter.FinishMessage();
-                    NetworkServer.SendWriterToReady(gameObject, s_UpdateWriter, channelId);
+
+                    NetworkServer.SendWriterToReady(gameObject, s_UpdateWriter, channelId, groupId);
                 }
             }
         }
@@ -856,13 +874,14 @@ namespace UnityEngine.Networking
             conn.RemoveFromVisList(this, false);
         }
 
-        public void RebuildObservers(bool initialize)
+        public void RebuildObservers(bool initialize, uint mGroupId = 0)
         {
             if (m_Observers == null)
                 return;
 
             bool changed = false;
             bool result = false;
+            mGroupId = mGroupId == 0?this.groupId:mGroupId;
             HashSet<NetworkConnection> newObservers = new HashSet<NetworkConnection>();
             HashSet<NetworkConnection> oldObservers = new HashSet<NetworkConnection>(m_Observers);
 
@@ -880,16 +899,19 @@ namespace UnityEngine.Networking
                     {
                         var conn = NetworkServer.connections[i];
                         if (conn == null) continue;
-                        if (conn.isReady)
-                            AddObserver(conn);
+                        if (!conn.isReady) continue;
+                        if(conn.groupId != mGroupId) continue;
+                        AddObserver(conn);
                     }
 
                     for (int i = 0; i < NetworkServer.localConnections.Count; i++)
                     {
                         var conn = NetworkServer.localConnections[i];
                         if (conn == null) continue;
-                        if (conn.isReady)
-                            AddObserver(conn);
+                        if (!conn.isReady) continue;
+                        if(conn.groupId != mGroupId)continue;
+
+                        AddObserver(conn);
                     }
                 }
                 return;
@@ -906,6 +928,11 @@ namespace UnityEngine.Networking
                 if (!conn.isReady)
                 {
                     if (LogFilter.logWarn) { Debug.LogWarning("Observer is not ready for " + gameObject + " " + conn); }
+                    continue;
+                }
+
+                if(conn.groupId != mGroupId)
+                {
                     continue;
                 }
 
@@ -1068,6 +1095,7 @@ namespace UnityEngine.Networking
             m_ConnectionToClient = null;
             m_PlayerId = -1;
             m_NetworkBehaviours = null;
+            m_GroupId = 0;
 
             ClearObservers();
             m_ClientAuthorityOwner = null;

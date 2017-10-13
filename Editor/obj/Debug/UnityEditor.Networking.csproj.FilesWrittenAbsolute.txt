@@ -1,0 +1,7 @@
+/Users/longtoo/Perforce/Support/Git/Unity-Networking-With-Session-2017.1f3/Editor/bin/Debug/UnityEditor.Networking.dll.mdb
+/Users/longtoo/Perforce/Support/Git/Unity-Networking-With-Session-2017.1f3/Editor/bin/Debug/UnityEditor.Networking.dll
+/Users/longtoo/Perforce/Support/Git/Unity-Networking-With-Session-2017.1f3/Editor/obj/Debug/UnityEditor.Networking.dll
+/Users/longtoo/Perforce/Support/Git/Unity-Networking-With-Session-2017.1f3/Editor/obj/Debug/UnityEditor.Networking.dll.mdb
+/Users/longtoo/Perforce/Support/Git/Unity-Networking-With-Session-2017.1f3/Editor/bin/Debug/UnityEditor.dll
+/Users/longtoo/Perforce/Support/Git/Unity-Networking-With-Session-2017.1f3/Editor/bin/Debug/UnityEngine.dll
+/Users/longtoo/Perforce/Support/Git/Unity-Networking-With-Session-2017.1f3/Editor/bin/Debug/UnityEngine.Networking.dll
